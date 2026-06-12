@@ -1,0 +1,44 @@
+# پروژه ۱: محاسبه‌گر قانون اهرم در متالورژی
+
+def calculate_lever_rule(C0, CL, Calpha):
+    """
+    این تابع درصد فازهای جامد و مایع را محاسبه می‌کند.
+    C0: درصد کل عنصر در آلیاژ
+    CL: درصد عنصر در فاز مایع
+    Calpha: درصد عنصر در فاز جامد (alpha)
+    """
+    # بررسی یک خطای منطقی: غلظت کل باید بین غلظت مایع و جامد باشد
+    if not (CL <= C0 <= Calpha or Calpha <= C0 <= CL):
+        return "خطا: غلظت کل (C0) باید بین غلظت مایع (CL) و جامد (Calpha) باشد."
+
+    try:
+        # فرمول قانون اهرم
+        fraction_alpha = (C0 - CL) / (Calpha - CL)
+        fraction_liquid = (Calpha - C0) / (Calpha - CL)
+
+        # تبدیل به درصد
+        percent_alpha = fraction_alpha * 100
+        percent_liquid = fraction_liquid * 100
+
+        return percent_alpha, percent_liquid
+    except ZeroDivisionError:
+        return "خطا: غلظت مایع و جامد نمی‌تواند برابر باشد (تقسیم بر صفر)."
+
+# --- بخش اجرای برنامه ---
+print("--- به محاسبه‌گر قانون اهرم خوش آمدید ---")
+# گرفتن ورودی از کاربر
+c0 = float(input("درصد غلظت کل آلیاژ (C0) را وارد کنید: "))
+cL = float(input("درصد غلظت در فاز مایع (CL) را وارد کنید: "))
+cAlpha = float(input("درصد غلظت در فاز جامد (Calpha) را وارد کنید: "))
+
+# صدا زدن تابع و دریافت نتیجه
+result = calculate_lever_rule(c0, cL, cAlpha)
+
+# نمایش نتیجه به کاربر
+if isinstance(result, tuple):
+    p_alpha, p_liquid = result
+    print(f"\n--- نتایج محاسبه ---")
+    print(f"درصد فاز جامد (Alpha): {p_alpha:.2f}%")
+    print(f"درصد فاز مایع (Liquid): {p_liquid:.2f}%")
+else:
+    print(result)# Write your code here :-)
