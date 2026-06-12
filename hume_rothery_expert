@@ -1,0 +1,64 @@
+# Write your code here :-)
+# پروژه ۳: سیستم کارشناس بررسی قوانین هوم-رcurrent در متالورژی
+
+def check_hume_rothery(r1, r2, crystal1, crystal2, electro1, electro2):
+    """
+    این تابع قوانین هوم-رcurrent را برای دو عنصر بررسی می‌کند.
+    r: شعاع اتمی
+    crystal: ساختار کریستالی (FCC, BCC, HCP)
+    electro: الکترونگاتیوی
+    """
+    print("\n--- در حال تحلیل متالورژیکی سیستم آلیاژی ---")
+
+    # ۱. بررسی شرط شعاع اتمی
+    radius_diff = abs(r1 - r2) / r1 * 100
+    if radius_diff <= 15:
+        radius_status = "✅ پاس شد (تفاوت شعاع کمتر از ۱۵٪ است)"
+        score = 1
+    else:
+        radius_status = f"❌ رد شد (تفاوت شعاع {radius_diff:.1f}% و بیشتر از ۱۵٪ است)"
+        score = 0
+
+    # ۲. بررسی شرط ساختار کریستالی
+    if crystal1.upper() == crystal2.upper():
+        crystal_status = f"✅ پاس شد (هر دو ساختار {crystal1.upper()} دارند)"
+        score += 1
+    else:
+        crystal_status = f"❌ رد شد (ساختارها هم‌خوانی ندارند: {crystal1.upper()} و {crystal2.upper()})"
+
+    # ۳. بررسی شرط الکترونگاتیوی (تفاوت نباید خیلی زیاد باشد، مثلاً کمتر از ۰.۴)
+    electro_diff = abs(electro1 - electro2)
+    if electro_diff <= 0.4:
+        electro_status = "✅ پاس شد (تفاوت الکترونگاتیوی کم است)"
+        score += 1
+    else:
+        electro_status = f"❌ هشدار (تفاوت الکترونگاتیوی {electro_diff:.2f} است؛ احتمال تشکیل ترکیب بین‌فلزی)"
+
+    # --- نتیجه‌گیری نهایی ---
+    print(f"۱. وضعیت شعاع اتمی: {radius_status}")
+    print(f"۲. وضعیت ساختار کریستالی: {crystal_status}")
+    print(f"۳. وضعیت الکترونگاتیوی: {electro_status}")
+
+    print("\n--- نظر کارشناسی سیستم ---")
+    if score == 3:
+        return "🎯 این دو عنصر حلالیت جامد کامل (نامحدود) دارند."
+    elif score == 2:
+        return "⚠️ حلالیت جامد محدود یا مشروط وجود دارد."
+    else:
+        return "🚫 این دو عنصر احتمالاً حلالیت بسیار ناچیزی دارند یا اصلاً مخلوط نمی‌شوند."
+
+# --- اجرای برنامه برای سیستم مس (Cu) و نیکل (Ni) ---
+print("تست سیستم برای آلیاژ مس-نیکل:")
+# مشخصات مس: شعاع 0.128، ساختار FCC، الکترونگاتیوی 1.9
+# مشخصات نیکل: شعاع 0.125، ساختار FCC، الکترونگاتیوی 1.8
+result = check_hume_rothery(0.128, 0.125, "FCC", "FCC", 1.9, 1.8)
+print(result)
+
+print("\n" + "="*40 + "\n")
+
+# --- اجرای برنامه برای سیستم آهن (Fe) و سرب (Pb) ---
+print("تست سیستم برای آلیاژ آهن-سرب:")
+# آهن: شعاع 0.124، ساختار BCC، الکترونگاتیوی 1.8
+# سرب: شعاع 0.175، ساختار FCC، الکترونگاتیوی 2.3
+result2 = check_hume_rothery(0.124, 0.175, "BCC", "FCC", 1.8, 2.3)
+print(result2)
