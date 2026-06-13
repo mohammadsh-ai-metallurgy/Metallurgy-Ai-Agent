@@ -1,64 +1,73 @@
-# Write your code here :-)
-# پروژه ۳: سیستم کارشناس بررسی قوانین هوم-رcurrent در متالورژی
+# پروژه ۳ (نسخه اختصاصی): سیستم کارشناس با پایگاه داده داخلی (دیکشنری)
 
-def check_hume_rothery(r1, r2, crystal1, crystal2, electro1, electro2):
-    """
-    این تابع قوانین هوم-رcurrent را برای دو عنصر بررسی می‌کند.
-    r: شعاع اتمی
-    crystal: ساختار کریستالی (FCC, BCC, HCP)
-    electro: الکترونگاتیوی
-    """
-    print("\n--- در حال تحلیل متالورژیکی سیستم آلیاژی ---")
+# ۱. ساخت پایگاه داده عناصر با استفاده از دیکشنری‌های توو در توو (Nested Dictionaries)
+elements_db = {
+    "Cu": {"name": "Copper", "radius": 0.128, "crystal": "FCC", "en": 1.90},
+    "Ni": {"name": "Nickel", "radius": 0.125, "crystal": "FCC", "en": 1.80},
+    "Fe": {"name": "Iron", "radius": 0.124, "crystal": "BCC", "en": 1.83},
+    "Al": {"name": "Aluminum", "radius": 0.143, "crystal": "FCC", "en": 1.61}
+}
 
-    # ۱. بررسی شرط شعاع اتمی
-    radius_diff = abs(r1 - r2) / r1 * 100
-    if radius_diff <= 15:
-        radius_status = "✅ پاس شد (تفاوت شعاع کمتر از ۱۵٪ است)"
-        score = 1
-    else:
-        radius_status = f"❌ رد شد (تفاوت شعاع {radius_diff:.1f}% و بیشتر از ۱۵٪ است)"
-        score = 0
+def analyze_alloy():
+    print("=== سیستم هوشمند ارزیابی حلالیت جامد (پایگاه داده اختصاصی) ===")
+    print(f"عناصر موجود در حافظه سیستم: {list(elements_db.keys())}")
 
-    # ۲. بررسی شرط ساختار کریستالی
-    if crystal1.upper() == crystal2.upper():
-        crystal_status = f"✅ پاس شد (هر دو ساختار {crystal1.upper()} دارند)"
+    # ۲. گرفتن نام عناصر از کاربر
+    el1_input = input("\nنماد عنصر اول (میزبان) را وارد کنید (مثلا Cu): ").strip().capitalize()
+    el2_input = input("نماد عنصر دوم (میهمان) را وارد کنید (مثلا Ni): ").strip().capitalize()
+
+    # ۳. بررسی اینکه آیا عناصر در دیتابیس ما وجود دارند یا خیر
+    if el1_input not in elements_db or el2_input not in elements_db:
+        print("❌ خطا: یکی یا هر دو عنصر در پایگاه داده فعلی (۴ عنصر) وجود ندارند!")
+        return
+
+    # ۴. استخراج اطلاعات از دیکشنری
+    data1 = elements_db[el1_input]
+    data2 = elements_db[el2_input]
+
+    print(f"\n📊 اطلاعات استخراج شده از حافظه:")
+    print(f"[{el1_input}]: شعاع={data1['radius']}nm، شبکه={data1['crystal']}، الکترونگاتیوی={data1['en']}")
+    print(f"[{el2_input}]: شعاع={data2['radius']}nm، شبکه={data2['crystal']}، الکترونگاتیوی={data2['en']}")
+
+    # ۵. پیاده‌سازی محاسبات متالورژیکی (قوانین هوم-روری)
+    score = 0
+
+    # شرط اول: تفاوت شعاع اتمی (فرمول درصد تفاوت)
+    r_diff = abs(data1['radius'] - data2['radius']) / data1['radius'] * 100
+    if r_diff <= 15:
+        radius_result = f"✅ پاس شد (تفاوت شعاع: {r_diff:.1f}٪)"
         score += 1
     else:
-        crystal_status = f"❌ رد شد (ساختارها هم‌خوانی ندارند: {crystal1.upper()} و {crystal2.upper()})"
+        radius_result = f"❌ رد شد (تفاوت شعاع زیاد است: {r_diff:.1f}٪)"
 
-    # ۳. بررسی شرط الکترونگاتیوی (تفاوت نباید خیلی زیاد باشد، مثلاً کمتر از ۰.۴)
-    electro_diff = abs(electro1 - electro2)
-    if electro_diff <= 0.4:
-        electro_status = "✅ پاس شد (تفاوت الکترونگاتیوی کم است)"
+    # شرط دوم: همانند بودن ساختار کریستالی
+    if data1['crystal'] == data2['crystal']:
+        crystal_result = f"✅ پاس شد (هر دو {data1['crystal']} هستند)"
         score += 1
     else:
-        electro_status = f"❌ هشدار (تفاوت الکترونگاتیوی {electro_diff:.2f} است؛ احتمال تشکیل ترکیب بین‌فلزی)"
+        crystal_result = f"❌ رد شد (ساختارها متفاوتند: {data1['crystal']} و {data2['crystal']})"
 
-    # --- نتیجه‌گیری نهایی ---
-    print(f"۱. وضعیت شعاع اتمی: {radius_status}")
-    print(f"۲. وضعیت ساختار کریستالی: {crystal_status}")
-    print(f"۳. وضعیت الکترونگاتیوی: {electro_status}")
+    # شرط سوم: تفاوت الکترونگاتیوی
+    en_diff = abs(data1['en'] - data2['en'])
+    if en_diff <= 0.4:
+        en_result = f"✅ پاس شد (تفاوت الکترونگاتیوی کم است: {en_diff:.2f})"
+        score += 1
+    else:
+        en_result = f"❌ هشدار (تفاوت زیاد است: {en_diff:.2f}، احتمال تشکیل فاز بین‌فلزی)"
 
-    print("\n--- نظر کارشناسی سیستم ---")
+    # ۶. نمایش گزارش نهایی
+    print("\n📋 گزارش تحلیل متالورژیکی:")
+    print(f"۱. تفاوت شعاع اتمی: {radius_result}")
+    print(f"۲. شبکه کریستالی: {crystal_result}")
+    print(f"۳. الکترونگاتیوی: {en_result}")
+
+    print("\n📢 نظر نهایی سیستم:")
     if score == 3:
-        return "🎯 این دو عنصر حلالیت جامد کامل (نامحدود) دارند."
+        print(f"🎯 عناصر {el1_input} و {el2_input} انحلال کامل (نامحدود) در یکدیگر دارند.")
     elif score == 2:
-        return "⚠️ حلالیت جامد محدود یا مشروط وجود دارد."
+        print(f"⚠️ عناصر {el1_input} و {el2_input} انحلال محدود دارند.")
     else:
-        return "🚫 این دو عنصر احتمالاً حلالیت بسیار ناچیزی دارند یا اصلاً مخلوط نمی‌شوند."
+        print(f"🚫 عناصر {el1_input} و {el2_input} در یکدیگر حل نمی‌شوند.")
 
-# --- اجرای برنامه برای سیستم مس (Cu) و نیکل (Ni) ---
-print("تست سیستم برای آلیاژ مس-نیکل:")
-# مشخصات مس: شعاع 0.128، ساختار FCC، الکترونگاتیوی 1.9
-# مشخصات نیکل: شعاع 0.125، ساختار FCC، الکترونگاتیوی 1.8
-result = check_hume_rothery(0.128, 0.125, "FCC", "FCC", 1.9, 1.8)
-print(result)
-
-print("\n" + "="*40 + "\n")
-
-# --- اجرای برنامه برای سیستم آهن (Fe) و سرب (Pb) ---
-print("تست سیستم برای آلیاژ آهن-سرب:")
-# آهن: شعاع 0.124، ساختار BCC، الکترونگاتیوی 1.8
-# سرب: شعاع 0.175، ساختار FCC، الکترونگاتیوی 2.3
-result2 = check_hume_rothery(0.124, 0.175, "BCC", "FCC", 1.8, 2.3)
-print(result2)
+# اجرای برنامه
+analyze_alloy()# Write your code here :-)
