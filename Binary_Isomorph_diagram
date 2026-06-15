@@ -1,0 +1,73 @@
+# Write your code here :-)
+# پروژه ۴: شبیه‌سازی ترمودینامیکی و رسم خودکار نمودار فازی دوتایی ایزومورف (Cu-Ni)
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- بخش ۱: تعریف ثوابت متالورژیکی و ترمودینامیکی ---
+R = 8.314  # ثابت جهانی گازها (J/mol.K)
+
+# مشخصات عنصر A (مس - Cu)
+T_m_A = 1358.0   # دمای ذوب مس بر حسب کلوین (1085 درجه سانتی‌گراد)
+H_m_A = 13100.0  # آنتالپی ذوب مس (J/mol)
+
+# مشخصات عنصر B (نیکل - Ni)
+T_m_B = 1728.0   # دمای ذوب نیکل بر حسب کلوین (1455 درجه سانتی‌گراد)
+H_m_B = 17500.0  # آنتالپی ذوب نیکل (J/mol)
+
+# --- بخش ۲: تقسیم‌بندی دما با استفاده از NumPy ---
+# ایجاد ۱۰۰ نقطه دمایی مساوی بین دمای ذوب مس و نیکل
+T_array = np.linspace(T_m_A, T_m_B, 100)
+
+# دو لیست خالی برای ذخیره کردن درصدها (کسر مولی) عنصر دوم (Ni)
+X_B_Liquid = []
+X_B_Solid = []
+
+# --- بخش ۳: حلقه محاسباتی برای حل فرمول‌ها در هر دما ---
+for T in T_array:
+    # جلوگیری از تقسیم بر صفر در دقیقاً دمای ذوب عناصر
+    if T == T_m_A:
+        X_B_L = 0.0
+        X_B_S = 0.0
+    elif T == T_m_B:
+        X_B_L = 1.0
+        X_B_S = 1.0
+    else:
+        # محاسبه فاکتور K برای هر دو عنصر طبق فرمول ترمودینامیکی
+        K_A = np.exp((H_m_A / R) * ((1.0 / T) - (1.0 / T_m_A)))
+        K_B = np.exp((H_m_B / R) * ((1.0 / T) - (1.0 / T_m_B)))
+
+        # محاسبه کسر مولی نیکل روی خط مایع و جامد (قانون رائولت)
+        X_B_L = (1.0 - K_A) / (K_B - K_A)
+        X_B_S = K_B * X_B_L
+
+    # اضافه کردن عددهای محاسبه شده به لیست‌های نهایی
+    X_B_Liquid.append(X_B_L)
+    X_B_Solid.append(X_B_S)
+
+# --- بخش ۴: تبدیل دماها به سانتی‌گراد برای فهم بهتر نمودار ---
+T_celsius = T_array - 273.15
+
+# --- بخش ۵: رسم نمودار با استفاده از Matplotlib ---
+plt.figure(figsize=(8, 6))
+
+# رسم خط مایع (Liquidus) با رنگ آبی
+plt.plot(X_B_Liquid, T_celsius, label="Liquidus (Line M_aye)", color="blue", linewidth=2)
+
+# رسم خط جامد (Solidus) با رنگ قرمز
+plt.plot(X_B_Solid, T_celsius, label="Solidus (Line J_amed)", color="red", linewidth=2)
+
+# تنظیمات ظاهری نمودار
+plt.title("Binary Isomorphous Phase Diagram (Cu-Ni System)", fontsize=14, fontweight='bold')
+plt.xlabel("Weight Fraction of Nickel (X_Ni)", fontsize=12)
+plt.ylabel("Temperature (°C)", fontsize=12)
+plt.xlim(0, 1)  # محدود کردن محور افقی بین ۰ تا ۱۰۰ درصد
+plt.grid(True, linestyle='--', alpha=0.6) # ایجاد خطوط شطرنجی کم‌رنگ
+plt.legend(fontsize=11) # نمایش راهنمای رنگ خطوط
+
+# اضافه کردن متن راهنما داخل فازها روی نمودار
+plt.text(0.2, 1400, "Liquid (L)", fontsize=12, color="blue", fontweight='bold')
+plt.text(0.4, 1250, "L + \u03b1", fontsize=12, color="purple", fontweight='bold')
+plt.text(0.7, 1150, "Solid (\u03b1)", fontsize=12, color="red", fontweight='bold')
+
+# نمایش نهایی نمودار شبیه‌سازی شده
+plt.show()
