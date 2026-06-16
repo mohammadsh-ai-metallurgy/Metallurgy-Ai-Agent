@@ -1,0 +1,39 @@
+# پروژه ۵: شبیه‌ساز صنعتی نرخ خوردگی CO2 در خطوط لوله (مدل de Waard)
+import math
+
+print("====================================================")
+print("   CO2 CORROSION RATE PREDICTOR (de Waard Model)    ")
+print("====================================================")
+
+# --- بخش ۱: دریافت ورودی‌های مهندسی از کاربر ---
+# دریافت دما بر حسب سانتی‌گراد و تبدیل فوری آن به شناور (float)
+T_celsius = float(input("Enter operating temperature (°C): "))
+
+# دریافت فشار جزئی گاز دی‌اکسید کربن بر حسب بار
+P_co2 = float(input("Enter CO2 partial pressure (bar): "))
+
+# --- بخش ۲: تبدیل واحدها و محاسبات ترمودینامیکی ---
+# تبدیل سانتی‌گراد به کلوین برای فرمول
+T_kelvin = T_celsius + 273.15
+
+# حل معادله لگاریتمی de Waard & Milliams
+# log10(V_corr) = 5.08 - (1610 / T) + 0.67 * log10(P_CO2)
+log_V_corr = 5.08 - (1610 / T_kelvin) + 0.67 * math.log10(P_co2)
+
+# معکوس کردن لگاریتم (رساندن عدد ۱۰ به توان خروجی) برای به دست آوردن نرخ خوردگی واقعی
+V_corr = 10 ** log_V_corr
+
+# --- بخش ۳: سیستم هشدار هوشمند و تفسیر متالورژیکی خروجی ---
+print("\n------------------- RESULTS -------------------")
+print(f"Calculated Corrosion Rate: {V_corr:.3f} mm/year")
+
+if V_corr < 0.1:
+    print("Status: 🟢 LOW RISK (خوردگی ناچیز)")
+    print("Recommendation: Carbon steel is safe. Routine monitoring is sufficient.")
+elif 0.1 <= V_corr <= 1.0:
+    print("Status: 🟡 MEDIUM RISK (خوردگی متوسط)")
+    print("Recommendation: Corrosion Inhibitor injection or internal coating is required.")
+else:
+    print("Status: 🔴 HIGH RISK / CRITICAL (خوردگی شدید و بحرانی!)")
+    print("Recommendation: CRITICAL! Material upgrade needed (e.g., 13% Cr or CRA alloys).")
+print("----------------================----------------")# Write your code here :-)
