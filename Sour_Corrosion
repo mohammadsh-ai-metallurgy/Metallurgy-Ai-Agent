@@ -1,0 +1,49 @@
+# Write your code here :-)
+# پروژه ۶ (نسخه پیشرفته): ابزار بازرسی و تایید فولاد در محیط ترش بر اساس NACE MR0175
+print("====================================================")
+print("   NACE MR0175 COMPONENT QUALIFICATION SYSTEM v2.0  ")
+print("====================================================")
+
+# --- بخش ۱: دریافت داده‌های تجربی محیط ---
+pH = float(input("1. Enter fluid pH (3.5 to 9.0): "))
+P_H2S = float(input("2. Enter H2S partial pressure (bar): "))
+
+# --- بخش ۲: تعیین ناحیه خطر NACE ---
+if P_H2S < 0.003:
+    region = 0
+    status = "🟢 Region 0 (Non-Sour Service)"
+    max_allowed_hardness = 999  # بدون محدودیت سختی
+elif pH >= 6.5 and P_H2S < 0.1:
+    region = 1
+    status = "🟡 Region 1 (Mild Severity)"
+    max_allowed_hardness = 24  # حد تجربی بالا برای اطمینان
+elif 5.0 <= pH < 6.5 and P_H2S < 0.5:
+    region = 2
+    status = "🟠 Region 2 (Moderate Severity)"
+    max_allowed_hardness = 22  # مرز رسمی استاندارد NACE
+else:
+    region = 3
+    status = "🔴 Region 3 (Severe Sour Service)"
+    max_allowed_hardness = 22  # مرز سخت‌گیرانه برای فولادهای خاص
+
+# --- بخش ۳: دریافت داده‌های متالورژیکی قطعه و ارزیابی سختی ---
+print("\n---------------- MATERIAL INSPECTION ----------------")
+material_name = input("Enter steel grade (e.g., API 5L X60, ASTM A106): ")
+actual_hardness = float(input("Enter measured material hardness (HRC): "))
+
+# --- بخش ۴: تصمیم‌گیری کارگاهی و صدور حکم نهایی ---
+print("\n----------------=== FINAL REPORT ===----------------")
+print(f"Environmental Severity : {status}")
+print(f"Material Under Test    : {material_name}")
+print(f"Measured Hardness      : {actual_hardness} HRC")
+print(f"NACE Hardness Limit    : {max_allowed_hardness if max_allowed_hardness != 999 else 'No Limit'} HRC")
+print("----------------------------------------------------")
+
+# بررسی منطق قبول یا رد (Pass/Fail)
+if actual_hardness > max_allowed_hardness:
+    print("❌ VERDICT: REJECTED (مردود)")
+    print(f"⚠️ CRITICAL RISK: Hardness exceeds NACE limit! The material is highly susceptible to Hydrogen Sulfide Embrittlement and SSC cracking.")
+else:
+    print("✅ VERDICT: PASSED (تایید شده)")
+    print("Status: The material meets the hardness criteria for this specific sour environment.")
+print("====================================================")
