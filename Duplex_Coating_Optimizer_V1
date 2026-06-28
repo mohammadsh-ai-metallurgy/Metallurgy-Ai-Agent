@@ -1,0 +1,102 @@
+# پروژه هشتم (نسخه اصلاح شده): سامانه هوشمند طراحی و صحه‌گذاری پوشش‌های چندلایه صنعتی (Duplex Systems)
+
+# دیتابیس لایه‌های صنعتی و پتانسیل گالوانیکی آن‌ها (بر حسب ولت)
+COATING_REGISTRY = {
+    "1": {"name": "Zinc Electroplated", "rate": 10, "potential": -0.76, "type": "Anodic"},
+    "2": {"name": "Zinc-Nickel Alloy (12-15% Ni)", "rate": 25, "potential": -0.68, "type": "Anodic"},
+    "3": {"name": "Hot-Dip Galvanized (HDG)", "rate": 15, "potential": -0.78, "type": "Anodic"},
+    "4": {"name": "Electroless Nickel (High-P)", "rate": 45, "potential": -0.15, "type": "Cathodic"},
+    "5": {"name": "Hard Chrome Plating", "rate": 50, "potential": -0.20, "type": "Cathodic"},
+    "6": {"name": "Epoxy Primer / Paint Layer", "rate": 5, "potential": 0.0, "type": "Barrier"}
+}
+
+print("==================================================================")
+print("   INDUSTRIAL DUPLEX & MULTI-LAYER COATING OPTIMIZER v1.1         ")
+print("==================================================================")
+print("Available Industrial Coating Technologies:")
+print(f"{'Code':<6}{'Coating Technology':<35}{'Galvanic Potential (V)'}")
+print("------------------------------------------------------------------")
+for code, info in COATING_REGISTRY.items():
+    # اصلاح غلط تایپی در فرمت نمایش ولتاژ
+    print(f" [{code}]  {info['name']:<35} {info['potential']:+}.2fV")
+print("------------------------------------------------------------------")
+
+# ۱. دریافت اطلاعات لایه اول (Base Layer)
+code_l1 = input("Select Code for LAYER 1 (Base): ").strip()
+thick_l1 = float(input("Enter Layer 1 thickness (microns): "))
+
+# ۲. دریافت اطلاعات لایه دوم (Top Layer)
+has_l2 = input("\nDo you want to add a Second Layer (Duplex System)? (y/n): ").strip().lower()
+
+layers = []
+if code_l1 in COATING_REGISTRY:
+    layers.append({"meta": COATING_REGISTRY[code_l1], "thick": thick_l1})
+
+if has_l2 == 'y':
+    code_l2 = input("Select Code for LAYER 2 (Top Layer): ").strip()
+    thick_l2 = float(input("Enter Layer 2 thickness (microns): "))
+    if code_l2 in COATING_REGISTRY:
+        layers.append({"meta": COATING_REGISTRY[code_l2], "thick": thick_l2})
+
+# ۳. انتخاب محیط عملیاتی قطعه
+print("\nSelect Targeted Operating Environment:")
+print("1. Marine / Coastal (High Chloride)")
+print("2. Industrial (Acid Rain / High SO2)")
+print("3. Mild / Protected")
+env_choice = input("Choose environment (1-3): ")
+
+# ۴. موتور پردازش متالورژیکی و بررسی سازگاری (Metallurgical Engine)
+print("\n" + "="*20 + " ENGINEERING DESIGN REPORT " + "="*20)
+
+total_thickness = sum(l["thick"] for l in layers)
+print(f"📐 Total System Thickness: {total_thickness} µm")
+
+# بررسی محدودیت ضخامت قطعات دقیق صنعتی (تلرانس ابعادی)
+if total_thickness > 80:
+    print("⚠️ WARNING: Total thickness exceeds 80µm. Check dimensional tolerances for precision threads!")
+
+# بررسی سازگاری گالوانیکی در سیستم‌های چندلایه
+galvanic_risk = False
+if len(layers) == 2:
+    pot_diff = abs(layers[0]["meta"]["potential"] - layers[1]["meta"]["potential"])
+    print(f"⚡ Galvanic Potential Difference (Delta V): {pot_diff:.2f} V")
+
+    # اگر اختلاف پتانسیل بیش از 0.25 ولت باشد و لایه رویی کاتدی باشد، خطر خوردگی شدید وجود دارد
+    if pot_diff > 0.25 and layers[1]["meta"]["type"] == "Cathodic":
+        galvanic_risk = True
+        print("🚨 CRITICAL METALLURGICAL ALERT: High Risk of Galvanic/Pitting Corrosion if Top Layer is scratched!")
+    else:
+        print("✅ Galvanic Compatibility: APPROVED (Safe Layering Sequence)")
+
+# ۵. محاسبه طول عمر با فرمول‌های تجربی و ضریب هم‌افزایی
+base_hours = sum(l["thick"] * l["meta"]["rate"] for l in layers)
+
+# اعمال ضریب هم‌افزایی (Synergy Factor) برای سیستم‌های ترکیبی واقعی
+synergy_factor = 1.0
+if len(layers) == 2:
+    if layers[0]["meta"]["type"] == "Anodic" and layers[1]["meta"]["type"] == "Barrier":
+        synergy_factor = 1.5
+        print("✨ SYNERGY EFFECT DETECTED: Corrosion resistance enhanced by 50% due to Duplex Protection Mechanism.")
+
+final_predicted_hours = base_hours * synergy_factor
+
+# اعمال ضریب کاهش محیطی
+env_multipliers = {"1": 0.6, "2": 0.5, "3": 1.0}
+env_multiplier = env_multipliers.get(env_choice, 1.0)
+real_world_years = (final_predicted_hours / 100) * env_multiplier
+
+print("------------------------------------------------------------------")
+print(f"⏳ PREDICTED ACCELERATED SALT SPRAY (ASTM B117): {final_predicted_hours:.0f} Hours")
+print(f"🚗 ESTIMATED SERVICE LIFE IN FIELD        : {real_world_years:.1f} Years")
+print("------------------------------------------------------------------")
+
+# حکم مهندسی نهایی (Verdict)
+if galvanic_risk:
+    print("📢 VERDICT: REJECTED ❌ (Galvanic mismatch will cause catastrophic failure)")
+elif final_predicted_hours >= 1000:
+    print("📢 VERDICT: APPROVED FOR HEAVY OFFSHORE & SUBSEA APPLICATIONS ⚓⭐")
+elif 500 <= final_predicted_hours < 1000:
+    print("📢 VERDICT: APPROVED FOR AUTOMOTIVE UNDER-CHASSIS & EXTERIOR ✅")
+else:
+    print("📢 VERDICT: APPROVED FOR MILD INDOOR / COSMETIC APPLICATIONS 🟡")
+print("==================================================================")
